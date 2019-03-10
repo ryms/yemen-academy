@@ -37,6 +37,7 @@ def contact_page(request):
 	"title":DEFAULT_TITLE,
 	"main_title":"Contact page",
 	"form": contact_form
+
 	}
 
 	if contact_form.is_valid():
