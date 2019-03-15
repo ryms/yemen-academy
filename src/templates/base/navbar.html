@@ -5,6 +5,7 @@
 {% url 'login' as login_url %}
 {% url 'admin:logout' as logout_url %}
 {% url 'register' as register_url %}
+{% url 'cart:home' as cart_url %}
 
 <nav class="navbar navbar-dark navbar-expand-md  bg-dark mb-3">
 <div class="container">
@@ -32,7 +33,7 @@
 
       
       {% if request.user.is_authenticated %}
-       <li class="nav-item">
+      <li class="nav-item">
         <a class="nav-link" href="{{logout_url}}">Logout</a>
       </li>
       {% else %}
@@ -43,11 +44,12 @@
         <a class="nav-link" href="{{register_url}}">Register</a>
       </li>     
       {% endif %}
+      <li class="nav-item">
+        <a class="nav-link" href="{{cart_url}}"><i class="fa fa-shopping-cart" aria-hidden="true"></i> ({{request.session.cart_items}})</a>
+      </li>
+      
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+    {% include 'search/snippets/search-form.html'%}
   </div>
   </div>
 </nav>

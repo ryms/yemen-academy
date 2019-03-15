@@ -1,6 +1,7 @@
 import os
 import random
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import pre_save, post_save
 from .utils import unique_slug_generator
 
@@ -26,6 +27,13 @@ class PrdocutQuerySet(models.query.QuerySet):
 	def active(self):
 		return self.filter(active = True)
 
+	def search(self, query):
+		lookups = (Q(title__icontains = query) |
+				   Q(description__icontains=query)|
+				   Q(tag__title__iexact=query))
+
+		return self.filter(lookups).distinct()
+
 class ProductManager(models.Manager):
 	def get_queryset(self):
 		return PrdocutQuerySet(self.model, using=self._db)
@@ -42,6 +50,9 @@ class ProductManager(models.Manager):
 
 	def featured(self):
 		return self.get_queryset().featured()
+
+	def search(self, query):
+		return self.get_queryset().active().search(query)
 
 class Product(models.Model):
 	title 		= models.CharField(max_length=120)
@@ -63,6 +74,11 @@ class Product(models.Model):
 
 	def __unicode__(self):
 		return self.title
+
+	@property
+	def name(self):
+		return self.title
+	
 
 def product_pre_save_receiver(sender, instance, *args, **kwargs):
 	if not instance.slug:

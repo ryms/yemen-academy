@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{%block content %}
+<h1>{% trans 'Cart' %}</h1>
+{% if cart.cart_items.exists %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Product Name</th>
+      <th scope="col">Count</th>
+      <th scope="col">Product Price</th>
+      <th scope="col">Total</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  	{% for prod_in_cart in cart.cart_items.all %}
+    <tr>
+      <th scope="row">{{forloop.counter}}</th>
+      <td><a href="{{prod_in_cart.product.get_absolute_url}}">{{prod_in_cart.product.name}}</td>
+      <td>
+      	<form class="form" action='{% url "cart:update" %}' method="POST">
+			{% csrf_token %}
+			<input type="hidden" name="product" value="{{prod_in_cart.product.id}}" />
+			<input type="text" name="count" id="product_383791" value="{{prod_in_cart.count_item}}" class="product_amount_control" maxlength="3">
+			<button class="btn btn-link" name="update"><i class="fa fa-refresh" style="color:green"></i></button>
+      		
+      </form>
+      </td>
+      <td>{{prod_in_cart.product.price}}</td>
+      <td>{{prod_in_cart.total_price}}</td>
+      <td>{% include 'products/snippets/update-cart.html' with product=prod_in_cart.product cart=cart product_in_cart=product_in_cart in_cart=True %}</td>
+    </tr>
+    {%endfor%}
+    <tr>
+   	  <td colspan="3"><b>Count</b></td>
+      <td><b>{{cart.count_items}}</b></td>
+    </tr>
+    <tr>
+   	  <td colspan="4"><b>Total</b></td>
+      <td><b>{{cart.total}}</b></td>
+    </tr>
+
+  </tbody>
+</table>
+{%else%}
+<div class="lead">Cart is Empty</div>
+{%endif%}
+{% endblock %}
