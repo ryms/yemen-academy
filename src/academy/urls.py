@@ -20,9 +20,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
 from django.views.generic import TemplateView
+from django.contrib.auth.views import LogoutView
 
-
-from .views import home_page,about_page,contact_page,login_page,register_page
+from accounts.views import login_page,register_page
+from .views import home_page,about_page,contact_page
 
 
 urlpatterns = [
@@ -39,6 +40,7 @@ urlpatterns = [
     
     
     path('login', login_page, name="login"),
+    path('logout', LogoutView.as_view(), name="logout"),
     path('register', register_page, name="register"),
 ]
 

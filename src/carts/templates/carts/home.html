@@ -39,8 +39,16 @@
       <td><b>{{cart.count_items}}</b></td>
     </tr>
     <tr>
+      <td colspan="4"><b>SubTotal</b></td>
+      <td><b>{{cart.subtotal}}</b></td>
+    </tr>
+    <tr>
    	  <td colspan="4"><b>Total</b></td>
       <td><b>{{cart.total}}</b></td>
+    </tr>
+    <tr>
+      <td colspan="4"></td>
+      <td colspan="2"><a class="btn btn-success btn-primary" href="{% url 'cart:checkout'%}">Checkout</a></td>
     </tr>
 
   </tbody>

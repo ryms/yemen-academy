@@ -1,6 +1,10 @@
 from django.shortcuts import render,redirect
 from products.models import Product
 from .models import Cart,ProductInCart
+from billing.models import BillingProfile
+from accounts.views import LoginForm
+
+from orders.models import Order
 
 def cart_create(user=None):
 	cart_id = request.session.get("cart_id", None)
@@ -16,18 +20,12 @@ def cart_create(user=None):
 def cart_home(request):
 	cart_obj,new_obj = Cart.objects.new_or_get(request)
 	productsInCart = cart_obj.cart_items.all()
-	total = 0
 	count = 0
 	for prodInCart in productsInCart:
-		total +=prodInCart.total_price
 		count +=prodInCart.count_item
-
-	cart_obj.total = total
-	cart_obj.count_items = count
-	cart_obj.save()
 	
 	request.session['cart_items'] = count
-	context={"cart":cart_obj, "total":total}
+	context={"cart":cart_obj}
 	return render(request, "carts/home.html", context)
 
 
@@ -54,3 +52,23 @@ def cart_update(request):
 
 	
 	return redirect("cart:home")
+
+
+def checkout_home(request):
+	cart_obj, cart_created = Cart.objects.new_or_get(request)
+	order_obj = None
+	if cart_created or cart_obj.cart_items.count() == 0:
+		redirect("cart:home")
+	else:
+		order_obj, new_order_obj = Order.objects.get_or_create(cart = cart_obj)
+
+	billing_profile = None
+	user = request.user
+	if user.is_authenticated:
+		billing_profile,billing_profile_created = BillingProfile.objects.get_or_create(user=user,email=user.email)
+
+	loginForm = LoginForm()
+
+	context = {"object":order_obj, "billing_profile":billing_profile, "loginForm": loginForm}
+
+	return render(request, "carts/checkout.html", context)

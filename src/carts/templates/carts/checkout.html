@@ -1,0 +1,20 @@
+{% extends "base.html"%}
+
+{%block content%}
+{% if not billing_profile %}
+<div class="row">
+	<div class="col-12 col-md-6">
+		<div class="lead">login</div>
+		{% include "accounts/snippets/login.html" with form=loginForm next_url=request.build_absolute_uri %}
+	</div>
+	<div class="col-12 col-md-6">
+		<div>continue as Guest</div>
+	</div>
+</div>
+{%else%}
+	<h1>Checkout</h1>
+	<p>Cart Total: {{object.cart.total}}</p>
+	<p>Shipping Total: {{object.shipping_total}}</p>
+	<p>Order Total: {{object.total}}</p>
+{%endif%}
+{%endblock%}

@@ -43,7 +43,10 @@ INSTALLED_APPS = [
     'products',
     'search',
     'tags',
-    'carts'
+    'carts',
+    'orders',
+    'accounts',
+    'billing'
 ]
 
 MIDDLEWARE = [
@@ -58,6 +61,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'academy.urls'
+
+LOGOUT_REDIRECT_URL = '/login'
 
 TEMPLATES = [
     {
@@ -139,3 +144,5 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_cdn", "media_root")
 
 
 PROTECTED_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_cdn", "protected_media")
+
+DEFAULT_TITLE = "Yemen academy"

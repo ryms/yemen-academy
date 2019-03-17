@@ -1,5 +1,7 @@
+from decimal import Decimal
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import pre_save, post_save, m2m_changed 
 from django.conf import settings
 
 from products.models import Product
@@ -64,14 +66,12 @@ class CartManager(models.Manager):
 		if product_in_cart is not None:
 			if action == "delete":
 				cart_obj.cart_items.remove(product_in_cart)
-				cart_obj.save()
 			elif action == "add":
 				product_in_cart.count_item +=1
 				product_in_cart.save()
 			elif action == "update":
 				if count == 0:
 					cart_obj.cart_items.remove(product_in_cart)
-					cart_obj.save()
 				else:
 					product_in_cart.count_item = count
 					product_in_cart.save()
@@ -80,8 +80,8 @@ class CartManager(models.Manager):
 			product_in_cart = ProductInCart.objects.create(product = product_obj)
 			product_in_cart.save()
 			cart_obj.cart_items.add(product_in_cart)
-			cart_obj.save()
 
+		cart_obj.update_cart()
 
 
 class Cart(models.Model):
@@ -95,5 +95,34 @@ class Cart(models.Model):
 
 	objects   = CartManager()
 
+	def update_cart(self):
+		productsInCart = self.cart_items.all()
+		total = 0
+		count = 0
+		for prodInCart in productsInCart:
+			total +=prodInCart.total_price
+			count +=prodInCart.count_item
+
+		self.subtotal = total
+		self.count_items = count
+		self.save()
+
 	def __str__(self):
 		return str(self.id)
+
+
+def m2m_changed_cart_receiver(sender, instance, action, *args, **kwargs):
+	if action in ['post_add', 'post_remove', 'post_clear']:
+		instance.update_cart()
+
+m2m_changed.connect(m2m_changed_cart_receiver, sender = Cart.cart_items.through)
+
+def pre_save_cart_receiver(sender, instance, *args, **kwargs):
+	if instance.subtotal > 0:
+		instance.total = Decimal(instance.subtotal) * Decimal(1.08) # tax
+	else:
+		instance.total = 0.00
+
+pre_save.connect(pre_save_cart_receiver, sender = Cart)
+
+

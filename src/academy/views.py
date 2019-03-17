@@ -5,15 +5,14 @@ from django.contrib.auth import authenticate, login, get_user_model
 from .forms.contact import ContactForm
 from .forms.auth import LoginForm, RegisterForm
 
+from django.conf import settings
 
-
-DEFAULT_TITLE = "Yemen academy"
 
 User = get_user_model()
 
 def home_page(request):
 	context = {
-	"title":DEFAULT_TITLE,
+	"title":settings.DEFAULT_TITLE,
 	"main_title":"Main page"
 	}
 	if request.user.is_authenticated:
@@ -25,7 +24,7 @@ def home_page(request):
 
 def about_page(request):
 	context = {
-	"title":DEFAULT_TITLE,
+	"title":settings.DEFAULT_TITLE,
 	"main_title":"About page"
 	}
 	return render(request, "home_page.html", context)
@@ -34,7 +33,7 @@ def contact_page(request):
 	contact_form = ContactForm(request.POST or None)
 
 	context = {
-	"title":DEFAULT_TITLE,
+	"title":settings.DEFAULT_TITLE,
 	"main_title":"Contact page",
 	"form": contact_form
 
@@ -69,7 +68,7 @@ def login_page(request):
 			#return an "invalid login" error message
 			print("error")
 	context = {
-	"title":DEFAULT_TITLE,
+	"title":settings.DEFAULT_TITLE,
 	"main_title":"Login page",
 	"form": form
 	}
@@ -81,7 +80,7 @@ def register_page(request):
 		print(form.cleaned_data)
 
 	context = {
-	"title":DEFAULT_TITLE,
+	"title":settings.DEFAULT_TITLE,
 	"main_title":"Register page",
 	"form": form
 	}

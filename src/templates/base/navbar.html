@@ -3,7 +3,7 @@
 {% url 'contact' as contact_url %}
 {% url 'products:list' as products_url %}
 {% url 'login' as login_url %}
-{% url 'admin:logout' as logout_url %}
+{% url 'logout' as logout_url %}
 {% url 'register' as register_url %}
 {% url 'cart:home' as cart_url %}
 
@@ -45,7 +45,8 @@
       </li>     
       {% endif %}
       <li class="nav-item">
-        <a class="nav-link" href="{{cart_url}}"><i class="fa fa-shopping-cart" aria-hidden="true"></i> ({{request.session.cart_items}})</a>
+        <a class="nav-link" href="{{cart_url}}"><i class="fa fa-shopping-cart" aria-hidden="true"></i>
+        {%if request.session.cart_items%} ({{request.session.cart_items}}) {%endif%}</a>
       </li>
       
     </ul>
