@@ -2,9 +2,13 @@ from django.shortcuts import render,redirect
 from products.models import Product
 from .models import Cart,ProductInCart
 from billing.models import BillingProfile
-from accounts.views import LoginForm
+from addresses.models import Address
+
+from accounts.views import LoginForm, GuestForm
+from addresses.forms import AddressForm
 
 from orders.models import Order
+from accounts.models import GuestEmail
 
 def cart_create(user=None):
 	cart_id = request.session.get("cart_id", None)
@@ -57,18 +61,69 @@ def cart_update(request):
 def checkout_home(request):
 	cart_obj, cart_created = Cart.objects.new_or_get(request)
 	order_obj = None
+	print("count items : {count}".format(count = cart_obj.cart_items.count()))
 	if cart_created or cart_obj.cart_items.count() == 0:
-		redirect("cart:home")
-	else:
-		order_obj, new_order_obj = Order.objects.get_or_create(cart = cart_obj)
+		return redirect("cart:home")
 
-	billing_profile = None
 	user = request.user
-	if user.is_authenticated:
-		billing_profile,billing_profile_created = BillingProfile.objects.get_or_create(user=user,email=user.email)
+	login_form = LoginForm()
+	guest_form = GuestForm()
+	address_form = AddressForm()
 
-	loginForm = LoginForm()
+	billing_address_id = request.session.get("billing_address_id", None)
+	shipping_address_id = request.session.get("shipping_address_id", None)
 
-	context = {"object":order_obj, "billing_profile":billing_profile, "loginForm": loginForm}
+	billing_profile, billing_profile_created = BillingProfile.objects.new_or_get(request)
+
+	address_qs = None
+
+	if billing_profile is not None:
+		if request.user.is_authenticated:
+			address_qs = Address.objects.filter(billing_profile = billing_profile)
+
+		order_obj,order_obj_created = Order.objects.new_or_get(billing_profile, cart_obj)
+		if order_obj_created:
+			del request.session["order_number"]
+			del request.session["order_email"]
+
+		if shipping_address_id is not None:
+			order_obj.shipping_address = Address.objects.get(id=shipping_address_id)
+			del request.session["shipping_address_id"]
+
+		if billing_address_id is not None:
+			order_obj.billing_address = Address.objects.get(id = billing_address_id)
+			del request.session["billing_address_id"]
+
+		if billing_address_id or shipping_address_id:
+			order_obj.save()
+
+	if request.method=="POST":
+		is_done = order_obj.check_done()
+		if is_done:
+			order_obj.mark_paid()
+			del request.session["cart_id"]
+			request.session["cart_items"] = 0
+			request.session["order_number"] = order_obj.order_id
+			request.session["order_email"] = billing_profile.email
+			# generate order PDF
+			# send order via email
+			return redirect("cart:success")
+
+	context = {
+			"object":order_obj, 
+			"billing_profile":billing_profile, 
+			"login_form": login_form,
+			"guest_form": guest_form,
+			"address_form":address_form,
+			"address_qs":address_qs
+			}
 
 	return render(request, "carts/checkout.html", context)
+
+
+def checkout_done_view(request):
+	context={
+	"order_number":request.session.get("order_number", None),
+	"order_email":request.session.get("order_email", None)
+	}
+	return render(request, "carts/checkout-done.html", context)

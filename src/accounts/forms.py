@@ -3,6 +3,9 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+class GuestForm(forms.Form):
+	email = forms.EmailField(label='E-mail', max_length = 100,
+		widget=forms.TextInput(attrs={"class":"form-control", "placeholder":"E-mail"}))	
 
 class LoginForm(forms.Form):
 	username=forms.CharField(label='User name', max_length=100,

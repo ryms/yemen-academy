@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{%block content%}
+<div class="col-12 mx-auto py-5">
+	{% if order_number %}
+	<h3>Thank you for your order!</h3>
+	<h4>Your order number: <b>{{order_number}}</b></h4>
+
+	<p>Your order sent to your email: <b>{{order_email}}</b></p>
+
+	<p>Our manager will contact with you.</p>
+	{%else%}
+	<p>You don't have any order</p>
+	{%endif%}
+</div>
+
+{%endblock%}

@@ -22,8 +22,10 @@ from django.conf.urls import url
 from django.views.generic import TemplateView
 from django.contrib.auth.views import LogoutView
 
-from accounts.views import login_page,register_page
+from accounts.views import login_page,register_page,guest_register_view
 from .views import home_page,about_page,contact_page
+
+from addresses.views import checkout_address_create_view, checkout_address_reuse_view
 
 
 urlpatterns = [
@@ -36,12 +38,18 @@ urlpatterns = [
     path('search', include(("search.urls", "search"), namespace="search")),
     path('cart/', include(("carts.urls", "cart"), namespace="cart")),
     
+
     path('bootstarp', TemplateView.as_view(template_name="bootstrap/example.html")),
     
     
     path('login', login_page, name="login"),
+    path('checkout/address/create', checkout_address_create_view, name="checkout_address_create"),
+    path('checkout/address/reuse', checkout_address_reuse_view, name="checkout_address_reuse"),
+    
     path('logout', LogoutView.as_view(), name="logout"),
     path('register', register_page, name="register"),
+    path('register/guest', guest_register_view, name="guest_register"),
+    
 ]
 
 if settings.DEBUG:
